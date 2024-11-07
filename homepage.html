@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Lock Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="overlay.css">
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -23,7 +25,7 @@
     </div>
   </nav>
 
-  <div class="container mt-5">
+  <div class="container-sm mt-5">
     <div class="text-center">
       <h1>Welcome, <span id="username">User</span>!</h1>
       <p class="lead"></p>
@@ -35,7 +37,7 @@
           <div class="card-body">
             <h5 class="card-title">Smart Lock State</h5>
             <p class="card-text">Check if your lock is open or closed.</p>
-            <a href="#" class="btn btn-primary">View State</a>
+            <button class="btn btn-primary" onclick="openOverlay()">View State</button>
           </div>
         </div>
       </div>
@@ -80,9 +82,36 @@
     </div>
   </div>
 
+  <div id="fullscreenOverlay" class="fullscreen-overlay">
+    <div class="row">
+      <div class="col-12">
+        <div class="card overlay">
+          <span class="close-btn" onclick="closeOverlay()">&times;</span>
+          <br>
+          <h3>Smart Lock Status</h3>
+          <div id="lock-container" class="p-2 bg-danger">
+            <i id="lock" class="fa" style="font-size: 50px;"></i>
+          </div>
+          
+          <script>
+            var element = document.getElementById("lock")
+            element.classList.add("fa-lock")
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.getElementById('username').innerText = 'YourUsername';
+    function openOverlay() {
+      document.getElementById("fullscreenOverlay").style.display = "flex";
+    }
+
+    function closeOverlay() {
+      document.getElementById("fullscreenOverlay").style.display = "none";
+    }
   </script>
 </body>
 </html>
