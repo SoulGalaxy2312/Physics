@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+          <a class="navbar-brand" href="/homepage.html">Smart Lock</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="#">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container mt-5">
+        <div class="form-group">
+          <label for="passwordField">Lock's password</label>
+          <div class="input-group">
+            <input type="password" class="form-control" id="passwordField" placeholder="Enter password">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                  </button>
+            </div>
+          </div>
+        </div>
+        
+        <br>
+        <div class="form-group">
+          <label for="maxAttempts">Maximum trial</label>
+          <input type="text" class="form-control" id="maxAttempts" value="5" readonly>
+        </div>
+    
+        <br>
+        <button class="btn btn-primary btn-block" onclick="handleChange()">Change</button>
+      </div>
+      
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+      
+      <script>
+        function togglePassword() {
+          const passwordField = document.getElementById("passwordField");
+          if (passwordField.type === "password") {
+            passwordField.type = "text";
+          } else {
+            passwordField.type = "password";
+          }
+        }
+      
+        function handleChange() {
+          const password = document.getElementById("passwordField").value;
+          if (password) {
+            alert("Changes saved successfully!");
+            // Additional logic can be added here as needed.
+          } else {
+            alert("Enter a password.");
+          }
+        }
+      </script>
+</body>
+</html>
