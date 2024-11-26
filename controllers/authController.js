@@ -16,17 +16,15 @@ exports.postSignUp = async (req, res) => {
     const { username, password, email, phone } = req.body; // Include phone
 
     try {
-        // Check if the user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).send('User with this email already exists.');
         }
 
-        // Create a new user
-        const newUser = new User({ username, password, email, phone }); // Save phone
+        const newUser = new User({ username, password, email, phone });
         await newUser.save();
 
-        res.redirect('/'); // Redirect to sign-in page after successful sign-up
+        res.redirect('/');
     } catch (err) {
         res.status(500).send('Error signing up: ' + err.message);
     }
@@ -41,7 +39,8 @@ exports.postSignIn = async (req, res) => {
             return res.status(401).send('Invalid email or password.');
         }
 
-        res.send('Sign-in successful!');
+        // Redirect to homepage with the user's data
+        res.render('homepage', { username: user.username });
     } catch (err) {
         res.status(500).send('Error signing in: ' + err.message);
     }
