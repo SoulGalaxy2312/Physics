@@ -23,7 +23,18 @@ client.on('connect', () => {
     });
 });
 
+function publishDistance(distance) {
+    client.publish('test/distance', distance, (err) => {
+        if (err) {
+            console.error('Publish failed:', err);
+        } else {
+            console.log(`Distance ${distance} published!`);
+        }
+    });
+}
+
 // Export the client and the getTemperature function
 module.exports = {
     client,
+    publishDistance,
 };
