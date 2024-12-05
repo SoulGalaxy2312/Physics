@@ -21,6 +21,12 @@ client.on('connect', () => {
     client.subscribe('test/temperature', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
+    client.subscribe('test/history', (err) => {
+        if (err) console.error('Failed to subscribe:', err);
+    });
+    client.subscribe('test/getDistance', (err) => {
+        if (err) console.error('Failed to subscribe:', err);
+    })
 });
 
 function publishDistance(distance) {

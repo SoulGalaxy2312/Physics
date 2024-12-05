@@ -53,6 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
         step: 1,
         tooltips: true,
       });
+
+      socket.on('distanceUpdate', (currentDistance)=>{
+        if (distanceSlider.noUiSlider) {
+            distanceSlider.noUiSlider.set(currentDistance); // Update the slider value
+            console.log(`Slider updated to: ${currentDistance}`);
+        } else {
+            console.error('noUiSlider is not initialized on the slider element!');
+        }
+      })
     } else {
       console.error('Slider container not found!');
     }
