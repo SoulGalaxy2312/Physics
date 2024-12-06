@@ -4,27 +4,42 @@ function openOverlay(action) {
     let isValidAction = true;
     
     if (action === 'Lock State') {
-        let isLocked = true
-        if (isLocked === true) {
-            body.classList.add('bg-danger')
-        } else {
-            body.classList.add('bg-success')
-        }
-
-        let lockElement = body.querySelector('.fa-lock, .fa-unlock')
-
-        if (!lockElement) {
-            lockElement = document.createElement('i')
-            if (isLocked) {
-                lockElement.classList.add('fa', 'fa-lock');    
+        socket.on('lockStateUpdate', (isLocked)=>{
+            if (isLocked === true) {
+                if (body.classList.contains('bg-success')) {
+                    body.classList.remove('bg-success');
+                }
+                body.classList.add('bg-danger')
             } else {
-                lockElement.classList.add('fa', 'fa-unlock');
+                if (body.classList.contains('bg-danger')) {
+                    body.classList.remove('bg-danger');
+                }
+                body.classList.add('bg-success')
             }
-            lockElement.style.fontSize = '100px';
-            
-            body.classList.add("d-flex", 'justify-content-center', 'align-items-center')
-            body.append(lockElement);
-        } 
+            let lockElement = body.querySelector('.fa-lock, .fa-unlock')
+
+            if (!lockElement) {
+                lockElement = document.createElement('i')
+                if (isLocked) {
+                    lockElement.classList.add('fa', 'fa-lock');    
+                } else {
+                    lockElement.classList.add('fa', 'fa-unlock');
+                }
+                lockElement.style.fontSize = '100px';
+                
+                body.classList.add("d-flex", 'justify-content-center', 'align-items-center')
+                body.append(lockElement);
+            } else {
+                if (lockElement.classList.contains('fa-lock') && !isLocked) {
+                    lockElement.classList.remove('fa-lock');
+                    lockElement.classList.add('fa-unlock');
+                } else if (lockElement.classList.contains('fa-unlock') && isLocked) {
+                    lockElement.classList.remove('fa-unlock');
+                    lockElement.classList.add('fa-lock');
+                }
+            }
+
+        })
     }
     
     if (isValidAction) {
@@ -93,3 +108,38 @@ function updateDistance() {
         console.error('Slider or noUiSlider instance not found!');
     }
 }
+
+function setToggleState(state) {
+    // Get the toggle switch element by its ID
+    const toggleSwitch = document.getElementById('oledToggle');
+  
+    // Set the state (true for ON, false for OFF)
+    toggleSwitch.checked = state;
+  
+    // Optional: Log the new state or trigger any additional behavior
+    console.log('OLED SSD Toggle is now:', state ? 'ON' : 'OFF');
+}
+
+document.getElementById('oledToggle').addEventListener('change', function () {
+    if (this.checked) {
+        fetch('/api/OledState', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isTurnOn: this.checked }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    console.log('Distance updated successfully!');
+                } else {
+                    console.error('Failed to update distance');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        console.log('Toggle changed from OFF to ON');
+    }
+  });
+  

@@ -18,17 +18,29 @@ let latestTemperature = '--';  // Default value
 // Handle the connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
+    // Get Temperature
     client.subscribe('test/temperature', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
+    // Get history record when someone tries to type password
     client.subscribe('test/history', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
+    // Get current distance adjusted for Ultra Sonic Sensor at the moment
     client.subscribe('test/getDistance', (err) => {
+        if (err) console.error('Failed to subscribe:', err);
+    });
+    // Get Current Lock State from the Servo
+    client.subscribe('test/getLockState', (err)=> {
+        if (err) console.error('Failed to subscribe:', err);
+    });
+    // Get the state of Oled SSD
+    client.subscribe('test/getOledSSDState', (err)=>{
         if (err) console.error('Failed to subscribe:', err);
     })
 });
 
+// User want to update the distance of UltraSonicSensor
 function publishDistance(distance) {
     client.publish('test/distance', distance, (err) => {
         if (err) {
