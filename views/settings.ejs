@@ -10,14 +10,14 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-          <a class="navbar-brand" href="/homepage.html">Smart Lock</a>
+          <a class="navbar-brand" href="/homepage">Smart Lock</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/Login.html">Logout</a>
+                <a class="nav-link" href="/">Logout</a>
               </li>
             </ul>
           </div>
@@ -40,7 +40,7 @@
         <br>
         <div class="form-group">
           <label for="maxAttempts">Maximum trial</label>
-          <input type="text" class="form-control" id="maxAttempts" value="5" readonly>
+          <input type="text" class="form-control" id="maxAttempts" value="5">
         </div>
     
         <br>
@@ -60,15 +60,55 @@
             passwordField.type = "password";
           }
         }
-      
+
         function handleChange() {
           const password = document.getElementById("passwordField").value;
-          if (password) {
-            alert("Changes saved successfully!");
-          } else {
-            alert("Enter a password.");
+
+          console.log('Password: ', password);
+          if (!password) {
+              return alert("Enter a password.");
           }
-        }
+          if (password.length != 6) {
+            return alert("Password must be 6 characters long")
+          }
+          if (!/^\d+$/.test(password)) {
+            return alert("The password must contain only numbers.");
+          }
+
+
+          const maxAttempts = document.getElementById("maxAttempts").value;
+          console.log('Max attempts: ', maxAttempts);
+
+          fetch('/api/changeLockPassword', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                password: password, 
+                maxAttempts: maxAttempts
+              }),
+          })
+              .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse JSON body
+              })
+              .then((data) => {
+                  if (data.success) {
+                      console.log('Lock Password updated successfully!');
+                      alert('Successfully updated!');
+                  } else {
+                      console.error('Server error:', data.message);
+                      alert(`Update failed: ${data.message}`);
+                  }
+              })
+              .catch((error) => {
+                  console.error('Error:', error);
+                  alert('An error occurred while updating lock password.');
+              });
+          } 
       </script>
 </body>
 </html>

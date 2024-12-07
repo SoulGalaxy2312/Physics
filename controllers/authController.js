@@ -34,6 +34,9 @@ exports.postSignUp = async (req, res) => {
 exports.postSignIn = async (req, res) => {
     const { email, password } = req.body;
 
+    const username = req.body.username;
+    
+    req.session.username = username; // Store username in session
     try {
         const user = await User.findOne({ email });
         if (!user || user.password !== password) {

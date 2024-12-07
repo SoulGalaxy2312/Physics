@@ -95,14 +95,23 @@ function updateDistance() {
             body: JSON.stringify({ distance: parseInt(updatedDistance) }),
         })
             .then((response) => {
-                if (response.ok) {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse JSON body
+            })
+            .then((data) => {
+                if (data.success) {
                     console.log('Distance updated successfully!');
+                    alert('Successfully updated!');
                 } else {
-                    console.error('Failed to update distance');
+                    console.error('Server error:', data.message);
+                    alert(`Update failed: ${data.message}`);
                 }
             })
             .catch((error) => {
                 console.error('Error:', error);
+                alert('An error occurred while updating distance.');
             });
     } else {
         console.error('Slider or noUiSlider instance not found!');
@@ -130,16 +139,71 @@ document.getElementById('oledToggle').addEventListener('change', function () {
             body: JSON.stringify({ isTurnOn: this.checked }),
         })
             .then((response) => {
-                if (response.ok) {
-                    console.log('Distance updated successfully!');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    alert('Successfully updated!');
                 } else {
-                    console.error('Failed to update distance');
+                    console.error('Server error:', data.message);
+                    alert(`Update failed: ${data.message}`);
                 }
             })
             .catch((error) => {
                 console.error('Error:', error);
+                alert('An error occurred while updating oled state.');
             });
-        console.log('Toggle changed from OFF to ON');
     }
   });
   
+function decreaseTemp() {
+    const tempInput = document.getElementById('tempRange');
+    const currentValue = parseInt(tempInput.value, 10);
+    if (currentValue > parseInt(tempInput.min, 10)) {
+        tempInput.value = currentValue - parseInt(tempInput.step, 10);
+    }
+}
+
+  // Increase temperature range
+function increaseTemp() {
+    const tempInput = document.getElementById('tempRange');
+    const currentValue = parseInt(tempInput.value, 10);
+    if (currentValue < parseInt(tempInput.max, 10)) {
+        tempInput.value = currentValue + parseInt(tempInput.step, 10);
+    }
+}
+
+function updateEmergencyTemperature() {
+    const tempInput = document.getElementById('tempRange').value;
+
+    fetch('/api/EmergencyTemperature', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tempInput: tempInput }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Parse JSON body
+        })
+        .then((data) => {
+            if (data.success) {
+                console.log('Temperature updated successfully!');
+                alert('Successfully updated!');
+            } else {
+                console.error('Server error:', data.message);
+                alert(`Update failed: ${data.message}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred while updating temperature.');
+        });
+}
+

@@ -4,10 +4,8 @@ const mqttClient = require('../mqtt/mqttClient'); // Import the MQTT client
 
 // GET route to render the homepage
 router.get('/homepage', (req, res) => {
-    // Use the user data from the session or database (assuming you have access to the logged-in user's session)
-    const username = req.session.username || 'Guest'; // Replace with real username if needed
+    const username = req.session && req.session.username ? req.session.username : 'Guest';
 
-    // Render the homepage with username and temperature
     res.render('homepage', { username: username });
 });
 
