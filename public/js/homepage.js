@@ -118,7 +118,7 @@ function updateDistance() {
     }
 }
 
-function setToggleState(state) {
+function setOledToggleState(state) {
     // Get the toggle switch element by its ID
     const toggleSwitch = document.getElementById('oledToggle');
   
@@ -128,6 +128,47 @@ function setToggleState(state) {
     // Optional: Log the new state or trigger any additional behavior
     console.log('OLED SSD Toggle is now:', state ? 'ON' : 'OFF');
 }
+
+function setTouchScreenToggleState(state) {
+    // Get the toggle switch element by its ID
+    const toggleSwitch = document.getElementById('touchScreenToggle');
+  
+    // Set the state (true for ON, false for OFF)
+    toggleSwitch.checked = state;
+  
+    // Optional: Log the new state or trigger any additional behavior
+    console.log('Touch Screen Toggle is now:', state ? 'ON' : 'OFF');
+}
+
+document.getElementById('touchScreenToggle').addEventListener('change', function () {
+    if (this.checked) {
+        fetch('/api/TouchScreenState', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isTurnOn: this.checked }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    alert('Successfully updated!');
+                } else {
+                    console.error('Server error:', data.message);
+                    alert(`Update failed: ${data.message}`);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred while updating oled state.');
+            });
+    }
+});
 
 document.getElementById('oledToggle').addEventListener('change', function () {
     if (this.checked) {
@@ -157,8 +198,9 @@ document.getElementById('oledToggle').addEventListener('change', function () {
                 alert('An error occurred while updating oled state.');
             });
     }
-  });
-  
+});
+
+
 function decreaseTemp() {
     const tempInput = document.getElementById('tempRange');
     const currentValue = parseInt(tempInput.value, 10);

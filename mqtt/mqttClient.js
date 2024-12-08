@@ -37,7 +37,11 @@ client.on('connect', () => {
     // Get the state of Oled SSD
     client.subscribe('test/getOledSSDState', (err)=>{
         if (err) console.error('Failed to subscribe:', err);
-    })
+    });
+    // Get the state of Touch Screen
+    client.subscribe('test/getTouchScreenState', (err)=>{
+        if (err) console.error('Failed to subscribe:', err);
+    });
 });
 
 // User want to update the distance of UltraSonicSensor

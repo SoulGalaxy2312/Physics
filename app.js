@@ -69,6 +69,24 @@ app.post('/api/OledState', (req,res)=>{
     }
 })
 
+app.post('/api/TouchScreenState', (req,res)=>{
+    const {isTurnOn} = req.body;
+    console.log(isTurnOn);
+    if (isTurnOn) {
+        mqttClient.client.publish('test/postTouchScreenState', isTurnOn.toString(), (err) => {
+            if (err) {
+                console.error('Publish failed:', err);
+                res.status(404).json( {success: false, message: "Touch Screen State updated failed!!!"} );
+            } else {
+                console.log(`Oled State ${isTurnOn} published!`);
+                res.status(200).json( {success: true, message: "Touch Screen State updated successfully"} );
+            }
+        });
+    } else {
+        res.status(400).send('No Change Occurs.');
+    }
+})
+
 app.post('/api/EmergencyTemperature', (req, res)=>{
     const {tempInput} = req.body;
     console.log("Emergency Temperature: ", tempInput);
@@ -118,14 +136,17 @@ mqttClient.client.on('message', (topic, message) => {
         console.log(`Current distance: ${currentDistance}`);
         io.emit('distanceUpdate', currentDistance);
     } else if (topic === 'test/getLockState') {
-        const messageString = message.toString();
         const isLocked = (message == 'true');
         console.log(`Current Lock State: ${isLocked}`);
         io.emit('lockStateUpdate', isLocked);
     } else if (topic === 'test/getOledSSDState') {
-        const isTurnOn = (message.toString() == 'true');
+        const isTurnOn = (message.toString().toLowerCase() == 'on');
         console.log(`OLED State: `, isTurnOn);
         io.emit('OledState', isTurnOn);
+    } else if (topic === 'test/getTouchScreenState') {
+        const isTurnOn = (message.toString().toLowerCase() == 'on');
+        console.log(`Touch Screen State: `, isTurnOn);
+        io.emit('TouchScreenState', isTurnOn);
     }
 });
 

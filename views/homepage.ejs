@@ -95,9 +95,19 @@
               <!-- OLED Toggle Switch -->
               <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                  <strong>Turn on/off OLED SSD for entering password</strong>
+                  <strong>Turn on OLED SSD for displaying password</strong>
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="oledToggle" onchange="toggleOLED()">
+                  </div>
+                </div>
+              </div>
+
+              <!-- TouchScreen Toggle Switch -->
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>Turn on Touch Screen for entering password</strong>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="touchScreenToggle" onchange="toggleOLED()">
                   </div>
                 </div>
               </div>
@@ -145,8 +155,12 @@
       });
 
       socket.on('OledState', (isTurnOn) => {
-        setToggleState(isTurnOn);
-      }) 
+        setOledToggleState(isTurnOn);
+      })
+
+      socket.on('TouchScreenState', (isTurnOn) => {
+        setTouchScreenToggleState(isTurnOn);
+      })
     </script>
   </body>
 </html>
