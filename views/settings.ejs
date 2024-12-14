@@ -40,7 +40,7 @@
         <br>
         <div class="form-group">
           <label for="maxAttempts">Maximum trial</label>
-          <input type="text" class="form-control" id="maxAttempts" value="5">
+          <input type="text" class="form-control" id="maxAttempts" value="<%=main.allowedAttempts%>">
         </div>
     
         <br>
@@ -65,14 +65,11 @@
           const password = document.getElementById("passwordField").value;
 
           console.log('Password: ', password);
-          if (!password) {
-              return alert("Enter a password.");
+          if (password && password.length !== 6) {
+            return alert("Password must be 6 characters long");
           }
-          if (password.length != 6) {
-            return alert("Password must be 6 characters long")
-          }
-          if (!/^\d+$/.test(password)) {
-            return alert("The password must contain only numbers.");
+          if (password && !/^\d+$/.test(password)) {
+              return alert("The password must contain only numbers.");
           }
 
 
@@ -85,7 +82,7 @@
                   'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                password: password, 
+                password: password||null, 
                 maxAttempts: maxAttempts
               }),
           })

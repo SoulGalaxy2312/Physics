@@ -64,27 +64,27 @@
     <script>
     const socket = io(); // Connect to the server
 
-    // Listen for the 'newRecord' event
     socket.on('newRecord', async (record) => {
-        // Find the table body
         const tableBody = document.querySelector('tbody');
 
-        // Create a new row
-        const newRow = document.createElement('tr');
+            const newRow = document.createElement('tr');
+            const dateTime = record.date;
+            const [date, time] = dateTime.split(' ');
+    
+            // Add cells to the row
+            newRow.innerHTML = `
+            <td>${date}</td>
+            <td>${time}</td>
+            <td>
+                <span class="badge ${record.result === 'success' ? 'bg-success' : 'bg-danger'}">
+                ${record.result}
+                </span>
+            </td>
+            `;
+            // Append the new row to the table body
+            tableBody.appendChild(newRow);
 
-        // Add cells to the row
-        newRow.innerHTML = `
-        <td>${record.date}</td>
-        <td>${record.time}</td>
-        <td>
-            <span class="badge ${record.result === 'success' ? 'bg-success' : 'bg-danger'}">
-            ${record.result}
-            </span>
-        </td>
-        `;
 
-        // Append the new row to the table body
-        tableBody.appendChild(newRow);
 
         const noRecordRow = document.getElementById('noRecords');
         if (noRecordRow) {

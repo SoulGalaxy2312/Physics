@@ -1,33 +1,66 @@
-function openOverlay(action) {
-    const body = document.getElementById('overlay-body')
+function openOverlay(action, locked) {
+    const body = document.getElementById('overlay-body');
     document.getElementById("fullscreenOverlay").style.display = "flex";
     let isValidAction = true;
-    
+    if (locked) {
+        if (body.classList.contains('bg-success')) {
+            body.classList.remove('bg-success');
+        }
+        body.classList.add('bg-danger');
+    } 
+    else {
+        if (body.classList.contains('bg-danger')) {
+            body.classList.remove('bg-danger');
+        }
+        body.classList.add('bg-success');
+    }
+
+    let lockElement = body.querySelector('.fa-lock, .fa-unlock');
+    if (!lockElement) {
+        lockElement = document.createElement('i');
+        if (locked) {
+            lockElement.classList.add('fa', 'fa-lock');
+        } else {
+            lockElement.classList.add('fa', 'fa-unlock');
+        }
+        lockElement.style.fontSize = '100px';
+        body.classList.add("d-flex", 'justify-content-center', 'align-items-center');
+        body.append(lockElement);
+    } else {
+        if (lockElement.classList.contains('fa-lock') && !locked) {
+            lockElement.classList.remove('fa-lock');
+            lockElement.classList.add('fa-unlock');
+        } else if (lockElement.classList.contains('fa-unlock') && locked) {
+            lockElement.classList.remove('fa-unlock');
+            lockElement.classList.add('fa-lock');
+        }
+    }
     if (action === 'Lock State') {
-        socket.on('lockStateUpdate', (isLocked)=>{
-            if (isLocked === true) {
+        socket.on('lockStateUpdate', (newLockedStatus) => {
+            isLocked = newLockedStatus;
+            alert(isLocked)
+            if (isLocked) {
                 if (body.classList.contains('bg-success')) {
                     body.classList.remove('bg-success');
                 }
-                body.classList.add('bg-danger')
+                body.classList.add('bg-danger');
             } else {
                 if (body.classList.contains('bg-danger')) {
                     body.classList.remove('bg-danger');
                 }
-                body.classList.add('bg-success')
+                body.classList.add('bg-success');
             }
-            let lockElement = body.querySelector('.fa-lock, .fa-unlock')
 
+            let lockElement = body.querySelector('.fa-lock, .fa-unlock');
             if (!lockElement) {
-                lockElement = document.createElement('i')
+                lockElement = document.createElement('i');
                 if (isLocked) {
-                    lockElement.classList.add('fa', 'fa-lock');    
+                    lockElement.classList.add('fa', 'fa-lock');
                 } else {
                     lockElement.classList.add('fa', 'fa-unlock');
                 }
                 lockElement.style.fontSize = '100px';
-                
-                body.classList.add("d-flex", 'justify-content-center', 'align-items-center')
+                body.classList.add("d-flex", 'justify-content-center', 'align-items-center');
                 body.append(lockElement);
             } else {
                 if (lockElement.classList.contains('fa-lock') && !isLocked) {
@@ -38,15 +71,13 @@ function openOverlay(action) {
                     lockElement.classList.add('fa-lock');
                 }
             }
-
-        })
+        });
     }
     
     if (isValidAction) {
         document.getElementById("overlay-header").innerHTML = action;
     }
 }
-
 function closeOverlay() {
     const body = document.getElementById('overlay-body');
     body.innerHTML = '';
@@ -55,30 +86,35 @@ function closeOverlay() {
     document.getElementById("fullscreenOverlay").style.display = "none";
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
     const distanceSlider = document.getElementById('slider-distance');
-  
+    const maxDistance = distanceSlider.dataset.maxDistance;
     if (distanceSlider) {
-      noUiSlider.create(distanceSlider, {
-        start: 30, // Initial value
-        range: {
-          min: 0,
-          max: 100,
-        },
-        step: 1,
-        tooltips: true,
-      });
+        noUiSlider.create(distanceSlider, {
+            start: maxDistance,
+            range: {
+                min: 0,
+                max: 100,
+            },
+            step: 1,
+            tooltips: true,
+        });
 
-      socket.on('distanceUpdate', (currentDistance)=>{
-        if (distanceSlider.noUiSlider) {
-            distanceSlider.noUiSlider.set(currentDistance); // Update the slider value
-            console.log(`Slider updated to: ${currentDistance}`);
-        } else {
-            console.error('noUiSlider is not initialized on the slider element!');
-        }
-      })
+        socket.once('EmergencyTemperature', (emergencyTemperature) => {
+            document.getElementById('tempRange').value = `${emergencyTemperature}`;
+        });
+
+        socket.once('distanceUpdate', (currentDistance) => {
+            if (distanceSlider.noUiSlider) {
+                distanceSlider.noUiSlider.set(currentDistance);
+                console.log(`Slider updated to: ${currentDistance}`);
+            } else if (!distanceSlider.noUiSlider) {
+                console.error('noUiSlider is not initialized on the slider element!');
+            }
+        });
     } else {
-      console.error('Slider container not found!');
+        console.error('Slider container not found!');
     }
 });
   
@@ -141,7 +177,6 @@ function setTouchScreenToggleState(state) {
 }
 
 document.getElementById('touchScreenToggle').addEventListener('change', function () {
-    if (this.checked) {
         fetch('/api/TouchScreenState', {
             method: 'POST',
             headers: {
@@ -157,7 +192,6 @@ document.getElementById('touchScreenToggle').addEventListener('change', function
             })
             .then((data) => {
                 if (data.success) {
-                    alert('Successfully updated!');
                 } else {
                     console.error('Server error:', data.message);
                     alert(`Update failed: ${data.message}`);
@@ -167,11 +201,9 @@ document.getElementById('touchScreenToggle').addEventListener('change', function
                 console.error('Error:', error);
                 alert('An error occurred while updating oled state.');
             });
-    }
 });
 
 document.getElementById('oledToggle').addEventListener('change', function () {
-    if (this.checked) {
         fetch('/api/OledState', {
             method: 'POST',
             headers: {
@@ -187,7 +219,6 @@ document.getElementById('oledToggle').addEventListener('change', function () {
             })
             .then((data) => {
                 if (data.success) {
-                    alert('Successfully updated!');
                 } else {
                     console.error('Server error:', data.message);
                     alert(`Update failed: ${data.message}`);
@@ -197,7 +228,6 @@ document.getElementById('oledToggle').addEventListener('change', function () {
                 console.error('Error:', error);
                 alert('An error occurred while updating oled state.');
             });
-    }
 });
 
 
@@ -249,3 +279,35 @@ function updateEmergencyTemperature() {
         });
 }
 
+function setColor(color) {
+    fetch('/api/set-color', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ color: color }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json(); // Xử lý JSON nếu server trả về JSON
+      })
+      .then(data => console.log('Response:', data))
+      .catch(err => console.error('Error:', err));
+}
+
+function toggleBacklight() {
+    const toggle = document.getElementById("backlightToggle");
+    const state = toggle.checked ? 'on' : 'off';
+    fetch('/api/backlight', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: state }),
+    })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(err => console.error(err));
+  }
