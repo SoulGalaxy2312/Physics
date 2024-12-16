@@ -41,7 +41,7 @@ exports.postSignIn = async (req, res) => {
         if (!user || user.password !== password) {
             return res.status(401).send('Invalid email or password.');
         }
-
+        res.locals.phone = user.phone;
         res.render('homepage', { username: user.username });
     } catch (err) {
         res.status(500).send('Error signing in: ' + err.message);

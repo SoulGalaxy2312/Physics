@@ -1,83 +1,49 @@
 function openOverlay(action, locked) {
     const body = document.getElementById('overlay-body');
     document.getElementById("fullscreenOverlay").style.display = "flex";
-    let isValidAction = true;
+    updateOverlay(body, locked);
+
+    if (action === 'Lock State') {
+        socket.on('lockStateUpdate', (newLockedStatus) => {
+            updateOverlay(body, newLockedStatus);
+        });
+    }
+
+    document.getElementById("overlay-header").innerHTML = action;
+}
+
+function updateOverlay(body, locked) {
     if (locked) {
-        if (body.classList.contains('bg-success')) {
-            body.classList.remove('bg-success');
-        }
+        body.classList.remove('bg-success');
         body.classList.add('bg-danger');
-    } 
-    else {
-        if (body.classList.contains('bg-danger')) {
-            body.classList.remove('bg-danger');
-        }
+    } else {
+        body.classList.remove('bg-danger');
         body.classList.add('bg-success');
     }
 
     let lockElement = body.querySelector('.fa-lock, .fa-unlock');
     if (!lockElement) {
         lockElement = document.createElement('i');
-        if (locked) {
-            lockElement.classList.add('fa', 'fa-lock');
-        } else {
-            lockElement.classList.add('fa', 'fa-unlock');
-        }
         lockElement.style.fontSize = '100px';
         body.classList.add("d-flex", 'justify-content-center', 'align-items-center');
         body.append(lockElement);
-    } else {
-        if (lockElement.classList.contains('fa-lock') && !locked) {
-            lockElement.classList.remove('fa-lock');
-            lockElement.classList.add('fa-unlock');
-        } else if (lockElement.classList.contains('fa-unlock') && locked) {
-            lockElement.classList.remove('fa-unlock');
-            lockElement.classList.add('fa-lock');
-        }
     }
-    if (action === 'Lock State') {
-        socket.on('lockStateUpdate', (newLockedStatus) => {
-            isLocked = newLockedStatus;
-            alert(isLocked)
-            if (isLocked) {
-                if (body.classList.contains('bg-success')) {
-                    body.classList.remove('bg-success');
-                }
-                body.classList.add('bg-danger');
-            } else {
-                if (body.classList.contains('bg-danger')) {
-                    body.classList.remove('bg-danger');
-                }
-                body.classList.add('bg-success');
-            }
 
-            let lockElement = body.querySelector('.fa-lock, .fa-unlock');
-            if (!lockElement) {
-                lockElement = document.createElement('i');
-                if (isLocked) {
-                    lockElement.classList.add('fa', 'fa-lock');
-                } else {
-                    lockElement.classList.add('fa', 'fa-unlock');
-                }
-                lockElement.style.fontSize = '100px';
-                body.classList.add("d-flex", 'justify-content-center', 'align-items-center');
-                body.append(lockElement);
-            } else {
-                if (lockElement.classList.contains('fa-lock') && !isLocked) {
-                    lockElement.classList.remove('fa-lock');
-                    lockElement.classList.add('fa-unlock');
-                } else if (lockElement.classList.contains('fa-unlock') && isLocked) {
-                    lockElement.classList.remove('fa-unlock');
-                    lockElement.classList.add('fa-lock');
-                }
-            }
-        });
-    }
-    
-    if (isValidAction) {
-        document.getElementById("overlay-header").innerHTML = action;
+    if (locked) {
+        lockElement.classList.remove('fa-unlock');
+        lockElement.classList.add('fa', 'fa-lock');
+    } else {
+        lockElement.classList.remove('fa-lock');
+        lockElement.classList.add('fa', 'fa-unlock');
     }
 }
+
+function checkCurrentLockState() {
+    socket.emit('lockStateUpdate', (currentLockState) => {
+        updateOverlay(document.getElementById('overlay-body'), currentLockState);
+    });
+}
+
 function closeOverlay() {
     const body = document.getElementById('overlay-body');
     body.innerHTML = '';

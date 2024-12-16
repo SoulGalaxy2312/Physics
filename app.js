@@ -10,17 +10,23 @@ const socketIo = require('socket.io');
 const session = require('express-session');
 const http = require('http');
 const sendValuesToMQTT = require('./middleware/publishMqtt');
-
 const cors = require('cors');
 
 const Value = require('./models/value');
 const Record = require('./models/record');
 
-
 const app = express();
 const port = 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
+
+const Pushsafer = require('pushsafer-notifications');
+
+const push = new Pushsafer({
+  k: 'z6gOyxrprLd17djEifOi',
+  debug: true
+});
+
 
 app.use(session({
     secret: '1234', // Secret key to sign the session ID cookie
@@ -42,6 +48,12 @@ app.use('/', authRoutes);
 app.use(homeRoutes);
 app.use(historyRoutes);
 app.use(settingsRoutes);
+
+app.use((req, res, next) => {
+    res.locals.phone = res.locals.phone;
+    next();
+});
+
 
 ///
 app.post('/api/distance', async (req, res) => {
@@ -81,19 +93,15 @@ app.post('/api/OledState', (req,res)=>{
 app.post('/api/TouchScreenState', (req,res)=>{
     const {isTurnOn} = req.body;
     console.log(isTurnOn);
-    if (isTurnOn) {
-        mqttClient.client.publish('test/postTouchScreenState', isTurnOn.toString(), (err) => {
-            if (err) {
-                console.error('Publish failed:', err);
-                res.status(404).json( {success: false, message: "Touch Screen State updated failed!!!"} );
-            } else {
-                console.log(`Oled State ${isTurnOn} published!`);
-                res.status(200).json( {success: true, message: "Touch Screen State updated successfully"} );
-            }
-        });
-    } else {
-        res.status(400).send('No Change Occurs.');
-    }
+    mqttClient.client.publish('test/postTouchScreenState', isTurnOn.toString(), (err) => {
+        if (err) {
+            console.error('Publish failed:', err);
+            res.status(404).json( {success: false, message: "Touch Screen State updated failed!!!"} );
+        } else {
+            console.log(`Oled State ${isTurnOn} published!`);
+            res.status(200).json( {success: true, message: "Touch Screen State updated successfully"} );
+        }
+    });
 })
 
 app.post('/api/EmergencyTemperature', (req, res)=>{
@@ -161,6 +169,30 @@ app.post('/api/backlight', async (req,res)=>{
 mqttClient.client.on('message', async (topic, message) => {
     if (topic === 'test/getTemperature') {
         const temperature = parseFloat(message.toString()); // Get temperature from MQTT message
+        let value = await Value.findOne();
+        if (temperature >= value.thresholdTemperature) {
+            const msg = {
+                m: "Nhiệt độ nhà của bạn đang vượt ngưỡng an toàn", 
+                t: 'Thông báo thử nghiệm',
+                s: '1',
+                v: '2',
+                i: '1', 
+                c: '#FF0000', 
+                d: '88248',
+                u: 'https://www.pushsafer.com', 
+                ut: 'Pushsafer.com', 
+                l: '10', 
+                pr: '2'
+              };
+              
+              push.send(msg, function(err, result) {
+                if (err) {
+                  console.log('Lỗi:', err);
+                } else {
+                  console.log('Kết quả:', result);
+                }
+              });  
+        }
         console.log(`Temperature: ${temperature}`);
         io.emit('temperatureUpdate', temperature); // Send temperature to clients via WebSocket
     }
@@ -202,14 +234,37 @@ mqttClient.client.on('message', async (topic, message) => {
         io.emit('distanceUpdate', currentDistance);
     } else if (topic === 'test/getLockState') {
         const isLocked = (message == 'true');
+        if (isLocked) {
+            const msg = {
+                m: "Mở Khóa Thành Công", 
+                t: 'Thông báo thử nghiệm',
+                s: '24',
+                v: '2',
+                i: '1', 
+                c: '#FF0000', 
+                d: '88248',
+                u: 'https://www.pushsafer.com', 
+                ut: 'Pushsafer.com', 
+                l: '10', 
+                pr: '2'
+              };
+              
+              push.send(msg, function(err, result) {
+                if (err) {
+                  console.log('Lỗi:', err);
+                } else {
+                  console.log('Kết quả:', result);
+                }
+              });     
+        }
         await Value.updateOne(
             {},
             { lockStatus: isLocked ? 'true' : 'false' },
             { upsert: true }
-        );
+        );    
         const lockData = await Value.findOne({}, { lockStatus: 1, _id: 0 });
         const lockStateFromDB = lockData?.lockStatus === 'true';
-    
+        
         console.log(`Current Lock State from DB: ${lockStateFromDB}`);
     
         io.emit('lockStateUpdate', lockStateFromDB);
