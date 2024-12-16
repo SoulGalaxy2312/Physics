@@ -16,7 +16,7 @@ const Value = require('./models/value');
 const Record = require('./models/record');
 
 const app = express();
-const port = 3000;
+const port = 3001;
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -234,7 +234,7 @@ mqttClient.client.on('message', async (topic, message) => {
         io.emit('distanceUpdate', currentDistance);
     } else if (topic === 'test/getLockState') {
         const isLocked = (message == 'true');
-        if (isLocked) {
+        if (!isLocked) {
             const msg = {
                 m: "Mở Khóa Thành Công", 
                 t: 'Thông báo thử nghiệm',
