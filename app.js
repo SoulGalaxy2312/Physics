@@ -16,7 +16,7 @@ const Value = require('./models/value');
 const Record = require('./models/record');
 
 const app = express();
-const port = 3001;
+const port = 3000;
 const server = http.createServer(app);
 const io = socketIo(server);
 

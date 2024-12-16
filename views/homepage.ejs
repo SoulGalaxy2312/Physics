@@ -177,6 +177,18 @@
       socket.on('TouchScreenState', (isTurnOn) => {
         setTouchScreenToggleState(isTurnOn);
       })
+
+      function disableCheckboxAfter7PM() {
+        const checkbox = document.getElementById('backlightToggle');
+        const now = new Date();
+        const currentHour = now.getHours();
+    
+        if (currentHour >= 19) {
+          checkbox.disabled = true;
+        }
+      }
+    
+      window.onload = disableCheckboxAfter7PM;
     </script>
   </body>
 </html>
