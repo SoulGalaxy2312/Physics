@@ -178,6 +178,7 @@
         setTouchScreenToggleState(isTurnOn);
       })
 
+
       function disableCheckboxAfter7PM() {
         const checkbox = document.getElementById('backlightToggle');
         const now = new Date();
@@ -187,6 +188,21 @@
           checkbox.disabled = true;
         }
       }
+
+      socket.on('lockStateUpdate', (newLockedStatus) => {
+        const body = document.getElementById('overlay-body');
+        if (!newLockedStatus) { // Nếu tín hiệu là false
+            document.getElementById("fullscreenOverlay").style.display = "flex"; // Hiển thị panel
+            updateOverlay(body, newLockedStatus); // Cập nhật giao diện panel
+    
+            // Cập nhật tiêu đề và hiển thị overlay
+            document.getElementById("overlay-header").innerHTML = "Lock State";
+        }
+        else {
+          updateOverlay(body, newLockedStatus); 
+          document.getElementById("fullscreenOverlay").style.display = "none";
+        }
+    });
     
       window.onload = disableCheckboxAfter7PM;
     </script>
