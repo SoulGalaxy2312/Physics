@@ -11,6 +11,10 @@ const valuesSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  temperature: {
+    type: Number,
+    require: true,
+  },
   lockPassword: {
     type: String,
     minlength: 0,

@@ -168,7 +168,12 @@ app.post('/api/backlight', async (req,res)=>{
 
 mqttClient.client.on('message', async (topic, message) => {
     if (topic === 'test/getTemperature') {
-        const temperature = parseFloat(message.toString()); // Get temperature from MQTT message
+        const temperature = parseFloat(message.toString()); 
+        await Value.updateOne(
+            {}, 
+            { temperature: temperature },
+            { upsert: true }
+        );
         let value = await Value.findOne();
         if (temperature >= value.thresholdTemperature) {
             const msg = {
