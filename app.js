@@ -166,6 +166,19 @@ app.post('/api/backlight', async (req,res)=>{
     })
 })
 
+app.post('/api/soundMelody', async(req,res)=>{
+    const {melodyId} = req.body;
+    mqttClient.client.publish('test/soundMelody', melodyId, (err)=>{
+        if (err){
+            console.err('Publish failed: ', err);
+            res.status(404).json({success: false, message: "Change sound melody failed!!!"})
+        } else{
+            console.log(`${melodyId} published!`);
+            res.status(200).json({success: true, message: 'Change sound melody successfully!!!'})
+        }
+    })
+})
+
 mqttClient.client.on('message', async (topic, message) => {
     if (topic === 'test/getTemperature') {
         const temperature = parseFloat(message.toString()); 
