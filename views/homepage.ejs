@@ -141,6 +141,26 @@
                   </label>                  
                 </div>
               </div>
+              <div class="list-group-item">
+                <div class="d-flex align-items-center" style="width: 100%;">
+                  <!-- Label aligned to the left -->
+                  <strong class="me-3" style="width: 20%; text-align: left;">Correct Sound Melody</strong>
+                  
+                  <!-- Dropdown box centered -->
+                  <div class="d-flex justify-content-center" style="width: 60%;">
+                    <select id="sound" name="sound" class="form-select" style="width: 50%;">
+                      <option value="melody1">Melody 1</option>
+                      <option value="melody2">Melody 2</option>
+                      <option value="melody3">Melody 3</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Update button aligned to the right -->
+                  <div class="d-flex justify-content-end" style="width: 20%;">
+                    <button type="button" class="btn btn-primary" onclick="updateSoundMelody()">Update</button>
+                  </div>
+                </div>
+              </div>              
             </div>
           </div>
         </div>

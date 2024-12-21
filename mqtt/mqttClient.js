@@ -2,11 +2,11 @@ const mqtt = require('mqtt');
 
 // MQTT options for WebSocket connection
 var options = {
-    host: '945d37355b7044d686d91d35ef4f0e67.s1.eu.hivemq.cloud',
+    host: '57f8334a22cf47a080caa6a1f0c656b7.s1.eu.hivemq.cloud',
     port: 8883,  // Use port 8884 for WebSocket
     protocol: 'mqtts',  // Use WebSocket Secure (wss) for SSL/TLS encrypted WebSocket connection
-    username: 'bangbangshooting',
-    password: 'Bangcuto24052004'
+    username: 'huhyhuvinh',
+    password: 'Secret123'
 };
 
 const client = mqtt.connect(options);

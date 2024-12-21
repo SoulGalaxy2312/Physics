@@ -277,3 +277,34 @@ function toggleBacklight() {
       .then(data => console.log(data))
       .catch(err => console.error(err));
   }
+
+
+function updateSoundMelody(){
+    const melody = document.getElementById("sound").value
+    fetch('/api/soundMelody', {
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+        },
+        body: JSON.stringify({melodyId: melody})
+    })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse JSON body
+    })
+    .then((data) => {
+        if (data.success) {
+            console.log('Sound Melody updated successfully!');
+            alert('Successfully updated!');
+        } else {
+            console.error('Server error:', data.message);
+            alert(`Update failed: ${data.message}`);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('An error occurred while updating sound melody.');
+    });
+}
