@@ -41,7 +41,7 @@
           <div class="card-body">
             <h5 class="card-title">Smart Lock State</h5>
             <p class="card-text">Check if your lock is open or closed.</p>
-            <button class="btn btn-primary" onclick="openOverlay('Lock State')">View State</button>
+            <button class="btn btn-primary" onclick="openOverlay('Lock State', '<%=main.lockStatus%>')">View State</button>
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@
               <div class="list-group-item mt-3">
                 <div class="d-flex justify-content-between align-items-center">
                   <strong>Distance object detection range</strong>
-                  <div id="slider-distance" style="width: 60%; margin: 20px;"></div>
+                  <div id="slider-distance" style="width: 60%; margin: 20px;" data-max-distance="<%=main.maxDistance%>"></div>
                   <button type="button" class="btn btn-primary" onclick="updateDistance()">Update</button>
                 </div>
               </div>
@@ -86,8 +86,8 @@
               <!-- Temperature Card -->
               <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                  <strong>Temperature</strong>
-                  <span id="temperature-badge" class="badge bg-primary fs-4">
+                  <strong>Current Temperature</strong>
+                  <span id="temperature-badge" class="badge bg-primary fs-4"><%=value.temperature%>
                   </span>
                 </div>
               </div>
@@ -105,9 +105,9 @@
               <!-- TouchScreen Toggle Switch -->
               <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
-                  <strong>Turn on Touch Screen for entering password</strong>
+                  <strong>Lock's Active</strong>
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="touchScreenToggle" onchange="toggleOLED()">
+                    <input class="form-check-input" type="checkbox" id="touchScreenToggle" onchange="toggleOLED()" disabled>
                   </div>
                 </div>
               </div>
@@ -118,18 +118,54 @@
                   <strong>Emergency Alert Temperature Range</strong>
                   <div class="input-group" style="width: 60%;">
                     <button class="btn btn-outline-secondary" type="button" onclick="decreaseTemp()">-</button>
-                    <input type="number" class="form-control text-center" id="tempRange" value="25" min="0" max="100" step="1">
+                    <input type="number" class="form-control text-center" id="tempRange" value="<%=main.thresholdTemperature%>" min="0" max="100" step="1">
                     <button class="btn btn-outline-secondary" type="button" onclick="increaseTemp()">+</button>
                   </div>
                   <button type="button" class="btn btn-primary" onclick="updateEmergencyTemperature()">Update</button>
                 </div>
               </div>
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>LED Ring Controller</strong>
+                  <button class="button white" onclick="setColor('white')">White</button>
+                  <button class="button yellow" onclick="setColor('yellow')">Yellow</button>
+                  <button class="button blue" onclick="setColor('blue')">Blue</button>
+                </div>
+              </div>
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>LCD Backlight Control</strong>
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="backlightToggle" onchange="toggleBacklight()">
+                    <span class="slider"></span>
+                  </label>                  
+                </div>
+              </div>
+              <div class="list-group-item">
+                <div class="d-flex align-items-center" style="width: 100%;">
+                  <!-- Label aligned to the left -->
+                  <strong class="me-3" style="width: 20%; text-align: left;">Correct Sound Melody</strong>
+                  
+                  <!-- Dropdown box centered -->
+                  <div class="d-flex justify-content-center" style="width: 60%;">
+                    <select id="sound" name="sound" class="form-select" style="width: 50%;">
+                      <option value="melody1">Melody 1</option>
+                      <option value="melody2">Melody 2</option>
+                      <option value="melody3">Melody 3</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Update button aligned to the right -->
+                  <div class="d-flex justify-content-end" style="width: 20%;">
+                    <button type="button" class="btn btn-primary" onclick="updateSoundMelody()">Update</button>
+                  </div>
+                </div>
+              </div>              
             </div>
           </div>
         </div>
       </div>
     </div>
-  
     <div id="fullscreenOverlay" class="fullscreen-overlay">
       <div class="card overlay">
         <span class="close-btn" onclick="closeOverlay()">&times;</span>
@@ -147,8 +183,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();  // Connect to the Socket.io server
-  
-      // Listen for 'temperatureUpdate' event from server
+
+
       socket.on('temperatureUpdate', (newTemperature) => {
         // Update the temperature displayed on the page
         document.getElementById('temperature-badge').innerText = `${newTemperature} °C`;
@@ -156,11 +192,39 @@
 
       socket.on('OledState', (isTurnOn) => {
         setOledToggleState(isTurnOn);
-      })
+      });
 
       socket.on('TouchScreenState', (isTurnOn) => {
         setTouchScreenToggleState(isTurnOn);
       })
+
+
+      function disableCheckboxAfter7PM() {
+        const checkbox = document.getElementById('backlightToggle');
+        const now = new Date();
+        const currentHour = now.getHours();
+    
+        if (currentHour >= 19) {
+          checkbox.disabled = true;
+        }
+      }
+
+      socket.on('lockStateUpdate', (newLockedStatus) => {
+        const body = document.getElementById('overlay-body');
+        if (!newLockedStatus) { // Nếu tín hiệu là false
+            document.getElementById("fullscreenOverlay").style.display = "flex"; // Hiển thị panel
+            updateOverlay(body, newLockedStatus); // Cập nhật giao diện panel
+    
+            // Cập nhật tiêu đề và hiển thị overlay
+            document.getElementById("overlay-header").innerHTML = "Lock State";
+        }
+        else {
+          updateOverlay(body, newLockedStatus); 
+          document.getElementById("fullscreenOverlay").style.display = "none";
+        }
+    });
+    
+      window.onload = disableCheckboxAfter7PM;
     </script>
   </body>
 </html>

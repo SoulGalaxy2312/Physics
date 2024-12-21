@@ -38,3 +38,7 @@
   .close-btn:hover {
     color: #333;
   }
+
+  .white { background-color: #ddd; color: #000; }
+  .yellow { background-color: #ffcc00; }
+  .blue { background-color: #0066ff; }

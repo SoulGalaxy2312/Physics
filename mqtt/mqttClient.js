@@ -2,11 +2,11 @@ const mqtt = require('mqtt');
 
 // MQTT options for WebSocket connection
 var options = {
-    host: '78282865d97d4e2f92862000736b19af.s1.eu.hivemq.cloud',
+    host: '57f8334a22cf47a080caa6a1f0c656b7.s1.eu.hivemq.cloud',
     port: 8883,  // Use port 8884 for WebSocket
     protocol: 'mqtts',  // Use WebSocket Secure (wss) for SSL/TLS encrypted WebSocket connection
-    username: 'ngothanhtri',
-    password: 'NgoThanhTri123'
+    username: 'huhyhuvinh',
+    password: 'Secret123'
 };
 
 const client = mqtt.connect(options);
@@ -18,28 +18,27 @@ let latestTemperature = '--';  // Default value
 // Handle the connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-    // Get Temperature
-    client.subscribe('test/temperature', (err) => {
+    client.subscribe('test/getTemperature', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
-    // Get history record when someone tries to type password
     client.subscribe('test/history', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
-    // Get current distance adjusted for Ultra Sonic Sensor at the moment
     client.subscribe('test/getDistance', (err) => {
         if (err) console.error('Failed to subscribe:', err);
     });
-    // Get Current Lock State from the Servo
     client.subscribe('test/getLockState', (err)=> {
         if (err) console.error('Failed to subscribe:', err);
     });
-    // Get the state of Oled SSD
-    client.subscribe('test/getOledSSDState', (err)=>{
+    client.subscribe('test/getOLEDSSDState', (err)=>{
         if (err) console.error('Failed to subscribe:', err);
     });
-    // Get the state of Touch Screen
-    client.subscribe('test/getTouchScreenState', (err)=>{
+
+    client.subscribe('test/EmergencyTemperature', (err)=>{
+        if (err) console.error('Failed to subscribe:', err);
+    });
+
+    client.subscribe('test/lockActive', (err)=>{
         if (err) console.error('Failed to subscribe:', err);
     });
 });

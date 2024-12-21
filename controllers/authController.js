@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Value = require('../models/value');
 const mqttClient = require('../mqtt/mqttClient');
 
 exports.getSignIn = (req, res) => {
@@ -35,15 +36,15 @@ exports.postSignIn = async (req, res) => {
     const { email, password } = req.body;
 
     const username = req.body.username;
-    
     req.session.username = username; // Store username in session
     try {
         const user = await User.findOne({ email });
         if (!user || user.password !== password) {
             return res.status(401).send('Invalid email or password.');
         }
-
-        res.render('homepage', { username: user.username });
+        const value = await Value.findOne();
+        res.locals.phone = user.phone;
+        res.render('homepage', { username: user.username, value: value });
     } catch (err) {
         res.status(500).send('Error signing in: ' + err.message);
     }
