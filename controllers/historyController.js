@@ -17,11 +17,6 @@ exports.saveRecord = async (req, res) => {
       const [datePart, timePart] = date.split(' ');
       const formattedDate = datePart.replace(/\//g, '-'); 
       const formattedTime = timePart.replace(/:/g, '-');
-      const newRecord = new Record({
-        date: formattedDate,
-        time: formattedTime,
-        result,
-      });
       res.status(201).json({ message: 'Record saved successfully' });
     } catch (error) {
       res.status(500).json({ error: 'Failed to save the record' });
